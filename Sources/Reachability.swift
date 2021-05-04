@@ -36,9 +36,6 @@ public enum ReachabilityError: Error {
     case unableToGetFlags(Int32)
 }
 
-@available(*, unavailable, renamed: "Notification.Name.reachabilityChanged")
-public let ReachabilityChangedNotification = NSNotification.Name("ReachabilityChangedNotification")
-
 public extension Notification.Name {
     static let reachabilityChanged = Notification.Name("reachabilityChanged")
 }
@@ -47,18 +44,6 @@ public class Reachability {
 
     public typealias NetworkReachable = (Reachability) -> ()
     public typealias NetworkUnreachable = (Reachability) -> ()
-
-    @available(*, unavailable, renamed: "Connection")
-    public enum NetworkStatus: CustomStringConvertible {
-        case notReachable, reachableViaWiFi, reachableViaWWAN
-        public var description: String {
-            switch self {
-            case .reachableViaWWAN: return "Cellular"
-            case .reachableViaWiFi: return "WiFi"
-            case .notReachable: return "No Connection"
-            }
-        }
-    }
 
     public enum Connection: CustomStringConvertible {
         case unavailable, wifi, cellular
@@ -69,32 +54,16 @@ public class Reachability {
             case .unavailable: return "No Connection"
             }
         }
-        
-        @available(*, deprecated, renamed: "unavailable")
-        public static let none: Connection = .unavailable
     }
 
     public var whenReachable: NetworkReachable?
     public var whenUnreachable: NetworkUnreachable?
-
-    @available(*, deprecated, renamed: "allowsCellularConnection")
-    public let reachableOnWWAN: Bool = true
 
     /// Set to `false` to force Reachability.connection to .none when on cellular connection (default value `true`)
     public var allowsCellularConnection: Bool
 
     // The notification center on which "reachability changed" events are being posted
     public var notificationCenter: NotificationCenter = NotificationCenter.default
-
-    @available(*, deprecated, renamed: "connection.description")
-    public var currentReachabilityString: String {
-        return "\(connection)"
-    }
-
-    @available(*, unavailable, renamed: "connection")
-    public var currentReachabilityStatus: Connection {
-        return connection
-    }
 
     public var connection: Connection {
         if flags == nil {
@@ -228,23 +197,6 @@ public extension Reachability {
 
         SCNetworkReachabilitySetCallback(reachabilityRef, nil, nil)
         SCNetworkReachabilitySetDispatchQueue(reachabilityRef, nil)
-    }
-
-    // MARK: - *** Connection test methods ***
-    @available(*, deprecated, message: "Please use `connection != .none`")
-    var isReachable: Bool {
-        return connection != .unavailable
-    }
-
-    @available(*, deprecated, message: "Please use `connection == .cellular`")
-    var isReachableViaWWAN: Bool {
-        // Check we're not on the simulator, we're REACHABLE and check we're on WWAN
-        return connection == .cellular
-    }
-
-   @available(*, deprecated, message: "Please use `connection == .wifi`")
-    var isReachableViaWiFi: Bool {
-        return connection == .wifi
     }
 
     var description: String {
